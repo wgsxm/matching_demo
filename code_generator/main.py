@@ -1,22 +1,26 @@
 import random as rd
+import os
 from PIL import Image,ImageDraw,ImageFont,ImageFilter
 #参数表
 background_size=(200,100)
 length=4
 times=10
+types=os.listdir("C:\\windows\\fonts")
 
 base_len=background_size[0]//(length+0.5)
 base_height=(background_size[1]-base_len)//2
 
 class mod_char:
-    def __init__(self,_name='a',type="arial.ttf"):
+    def __init__(self,_name='a',type=rd.choice(types)):
         self.name=_name
         self.angle=[rd.uniform(0,15),rd.choice([0,1])]
         self.color=(rd.randint(0,200),rd.randint(0,200),rd.randint(0,200))
         self.xmove=rd.randint(-base_len//4,base_len//4)
         self.ymove=rd.randint(-(background_size[1]-base_len)//4,(background_size[1]-base_len)//4)
-        self.font=ImageFont.truetype(type, rd.randint(int(1*min(base_len,background_size[1])),int(1.5*min(base_len,background_size[1]))))
-
+        try:
+            self.font=ImageFont.truetype(type, rd.randint(int(1*min(base_len,background_size[1])),int(1.5*min(base_len,background_size[1]))))
+        except OSError:
+            self.font=ImageFont.truetype("arial.ttf", rd.randint(int(1*min(base_len,background_size[1])),int(1.5*min(base_len,background_size[1]))))
 def rand_str(dic):
     res=""
     iter=0
@@ -74,15 +78,18 @@ def final_process(draft):
         iter+=1
         process(draft)
 
+def main(times):
+    iter=0
+    while iter<times:
+        iter+=1
+        background=Image.new(mode='RGB',size=background_size,color="white")
+        name=rand_str((0,1,2))
+        draw_lines(background)#画线条
+        draw_all(str_to_mod_char(name),background)
+        final_process(background)#模糊处理等等
+        background.save("./codes/{}.png".format(name))
 
-iter=0
-while iter<times:
-    iter+=1
-    background=Image.new(mode='RGB',size=background_size,color="white")
-    name=rand_str((0,1,2))
-    draw_lines(background)#画线条
-    draw_all(str_to_mod_char(name),background)
-    final_process(background)#模糊处理等等
-    background.save("./codes/{}.png".format(name))
+main(times)
+
     
     
