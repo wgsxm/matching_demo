@@ -1,26 +1,32 @@
 import random as rd
 import os
 from PIL import Image,ImageDraw,ImageFont,ImageFilter
+from fontTools.ttLib import TTFont
+
 #参数表
 background_size=(200,100)
 length=4
 times=10
-types=os.listdir("C:\\windows\\fonts")
+types=list(filter(lambda x:(("ttf" in x) or ("TTF" in x)),(os.listdir("C:\\windows\\fonts"))))
 
 base_len=background_size[0]//(length+0.5)
 base_height=(background_size[1]-base_len)//2
 
 class mod_char:
-    def __init__(self,_name='a',type=rd.choice(types)):
+    def __init__(self,_name='a',type="arial.ttf"):
         self.name=_name
         self.angle=[rd.uniform(0,15),rd.choice([0,1])]
         self.color=(rd.randint(0,200),rd.randint(0,200),rd.randint(0,200))
         self.xmove=rd.randint(-base_len//4,base_len//4)
         self.ymove=rd.randint(-(background_size[1]-base_len)//4,(background_size[1]-base_len)//4)
         try:
-            self.font=ImageFont.truetype(type, rd.randint(int(1*min(base_len,background_size[1])),int(1.5*min(base_len,background_size[1]))))
-        except OSError:
-            self.font=ImageFont.truetype("arial.ttf", rd.randint(int(1*min(base_len,background_size[1])),int(1.5*min(base_len,background_size[1]))))
+            if _name not in TTFont('C:\\windows\\fonts\\'+type).getGlyphOrder()[2:]:
+                type="arial.ttf"
+        except:
+            type="arial.ttf"
+        self.font=ImageFont.truetype(type, rd.randint(int(1*min(base_len,background_size[1])),int(1.5*min(base_len,background_size[1]))))
+         
+
 def rand_str(dic):
     res=""
     iter=0
@@ -36,7 +42,7 @@ def rand_str(dic):
     return res
     
 def str_to_mod_char(str):
-    return [mod_char(item) for item in str]
+    return [mod_char(item,rd.choice(types)) for item in str]
 
 def draw_one(target_char,temp,place):
     changed_place=(place[0]+target_char.xmove,place[1]+target_char.ymove)
