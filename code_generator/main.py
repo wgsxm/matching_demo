@@ -1,9 +1,13 @@
 import random as rd
+import os
 from PIL import Image,ImageDraw,ImageFont,ImageFilter
+from fontTools.ttLib import TTFont
+
 #参数表
 background_size=(200,100)
 length=4
 times=10
+types=list(filter(lambda x:(("ttf" in x) or ("TTF" in x)),(os.listdir("C:\\windows\\fonts"))))
 
 base_len=background_size[0]//(length+0.5)
 base_height=(background_size[1]-base_len)//2
@@ -15,7 +19,13 @@ class mod_char:
         self.color=(rd.randint(0,200),rd.randint(0,200),rd.randint(0,200))
         self.xmove=rd.randint(-base_len//4,base_len//4)
         self.ymove=rd.randint(-(background_size[1]-base_len)//4,(background_size[1]-base_len)//4)
+        try:
+            if _name not in TTFont('C:\\windows\\fonts\\'+type).getGlyphOrder()[2:]:
+                type="arial.ttf"
+        except:
+            type="arial.ttf"
         self.font=ImageFont.truetype(type, rd.randint(int(1*min(base_len,background_size[1])),int(1.5*min(base_len,background_size[1]))))
+         
 
 def rand_str(dic):
     res=""
@@ -32,7 +42,7 @@ def rand_str(dic):
     return res
     
 def str_to_mod_char(str):
-    return [mod_char(item) for item in str]
+    return [mod_char(item,rd.choice(types)) for item in str]
 
 def draw_one(target_char,temp,place):
     changed_place=(place[0]+target_char.xmove,place[1]+target_char.ymove)
@@ -74,15 +84,18 @@ def final_process(draft):
         iter+=1
         process(draft)
 
+def main(times):
+    iter=0
+    while iter<times:
+        iter+=1
+        background=Image.new(mode='RGB',size=background_size,color="white")
+        name=rand_str((0,1,2))
+        draw_lines(background)#画线条
+        draw_all(str_to_mod_char(name),background)
+        final_process(background)#模糊处理等等
+        background.save("./codes/{}.png".format(name))
 
-iter=0
-while iter<times:
-    iter+=1
-    background=Image.new(mode='RGB',size=background_size,color="white")
-    name=rand_str((0,1,2))
-    draw_lines(background)#画线条
-    draw_all(str_to_mod_char(name),background)
-    final_process(background)#模糊处理等等
-    background.save("./codes/{}.png".format(name))
+main(times)
+
     
     
