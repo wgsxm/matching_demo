@@ -4,8 +4,8 @@ from PIL import Image,ImageDraw,ImageFont,ImageFilter
 from fontTools.ttLib import TTFont
 
 #参数表
-background_size=(200,100)
-length=4
+background_size=(100,100)
+length=1
 times=10
 types=list(filter(lambda x:(("ttf" in x) or ("TTF" in x)),(os.listdir("C:\\windows\\fonts"))))
 
