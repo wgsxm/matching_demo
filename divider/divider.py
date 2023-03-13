@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 from matplotlib import pyplot as plt
-
+import random as rd
 
 def pre_process(im):
     # 转成灰度图：
@@ -20,8 +20,7 @@ def list_blur(ls,kernel):
             ls_[index]=sum(ls_[index-kernel:index+kernel+1])/(2*kernel+1)
     return ls_
 
-def divider(im):
-    magic_num=0.07
+def image_white_list(im):
     white = []  # 记录每一列的白色像素总和
     height = im.shape[0]
     width = im.shape[1]
@@ -37,13 +36,18 @@ def divider(im):
         white.append(s)
     ave_num=(sum/width)/white_max
     white=list_blur(white,2)
-    
+    return (white,ave_num,white_max)
+
+def divider(im,lenth=3,magic_num=0.12):
+    height = im.shape[0]
+    width = im.shape[1]
+    white,ave_num,white_max=image_white_list(im)
     def find_end(start_):
         cer=False
         for i in range(start_ + 1, width - 1):
             if white[i] < magic_num * white_max:
                 if cer:
-                    if i-start_>5:
+                    if i-start_>lenth:
                         return i
                     else:
                         return find_end(i)
@@ -65,12 +69,4 @@ def divider(im):
     return res
 
 filepath="./captcha_generator/captcha"
-image_list=os.listdir(filepath)
-error=0
-for item in image_list:
-    im=cv2.imread(filepath+'/'+item)
-    cuts=divider(pre_process(im))
-    if len(cuts)!=4:
-        error+=1
-
-print(1-error/len(image_list),"times:",len(image_list),sep=' ')
+image_list=(os.listdir(filepath))
